@@ -1,11 +1,41 @@
-define(function()
+define(["scripts/require_jquery"],function($)
 	{
-		
 		var toType = function(obj) {
 		  return ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1].toLowerCase()
 		};
 		
 		var acumulador;
+		
+		function vibrateAnode(tiempo){	
+			if(toType(tiempo) === "array"){ 
+				$.ajax({ 
+					url: "http://127.0.0.1:4444/dummy?action=vibrate&pattern="+tiempo+"&callback=?", 
+					//url: "http://127.0.0.1:4444/vibracion", 
+					dataType: 'json', 
+					timeout: 3000, //3 second timeout, 
+					error: function(jqXHR, status, errorThrown){
+						// alert('Error: No se ha obtenido acceso');
+						alert('error en 2 ' + status + " " + errorThrown);
+						//alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
+					 //do something 
+					} 
+				});
+			}
+			else{
+				$.ajax({ 
+					url: "http://127.0.0.1:4444/dummy?action=vibrate&time="+tiempo+"&callback=?", 
+					//url: "http://127.0.0.1:4444/vibracion", 
+					dataType: 'json', 
+					timeout: 3000, //3 second timeout, 
+					error: function(jqXHR, status, errorThrown){
+						// alert('Error: No se ha obtenido acceso');
+						alert('error en 3 ' + status + " " + errorThrown);
+						//alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
+					 //do something 
+					} 
+				});
+			}
+		}
   
 		return {
 			vibrate: function(tiempo){
@@ -44,7 +74,24 @@ define(function()
 						}
 					}
 					else{
-						alert('Error: No se ha obtenido acceso');
+						//TODO meter esto en una función
+						$.ajax({ 
+							url: "http://127.0.0.1:4444/dummy?action=ping&callback=?", 
+							//url: "http://127.0.0.1:4444/vibracion", 
+							dataType: 'json', 
+							success: function(data){
+								vibrateAnode(tiempo);
+							}, 
+							timeout: 3000, //3 second timeout, 
+							error: function(jqXHR, status, errorThrown){
+								// alert('Error: No se ha obtenido acceso');
+								alert('error en 1 ' + status + " " + errorThrown);
+								//alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
+							 //do something 
+							} 
+						}); 
+						
+						// alert('Error: No se ha obtenido acceso');
 					}
 				} 
 			}

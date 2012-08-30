@@ -6,7 +6,7 @@ function roundNumber(num) {
 };
 
 function handleAcelerometer(accel){
-	
+	 
 	document.getElementById('x').innerHTML = roundNumber(accel.x);
     document.getElementById('y').innerHTML = roundNumber(accel.y);
     document.getElementById('z').innerHTML = roundNumber(accel.z);
@@ -42,6 +42,18 @@ var vibrate = function(tiempo) {
 	});
 };
 
+var beep = function(veces) {
+	require(["scripts/libreria.js"], function(Libreria) {
+			Libreria.beep(veces);
+	});
+};
+
+var notificate = function(title,text) {
+	require(["scripts/libreria.js"], function(Libreria) {
+			Libreria.notificate(title,text);
+	});
+};
+
 
 var geoloc;
 
@@ -70,74 +82,51 @@ var  toggleCompass = function() {
 				};
 			Libreria.compass.getCurrentOrientation(mostrarCompass);
 	});
-
-
-
-		
 };
 
 
 
-// ------------------
+function captureImage() {
+  
+	require(["scripts/libreria.js"], function(Libreria) {
+		function captureSuccess(mediaFiles) {
+			var i, len;
+			for (i = 0, len = mediaFiles.length; i < len; i += 1) {
+				uploadFile(mediaFiles[i]);
+			}       
+		}
 
+		// Called if something bad happens.
+		// 
+		function captureError(error) {
+			alert( 'Error obteniendo la imagen');
+		}
+		function uploadFile(mediaFile) {
+				var path = mediaFile.fullPath,
+				name = mediaFile.name;
 
-
-/* 
-var toType = function(obj) {
-  return ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1].toLowerCase()
-}
-
-
-
-var doit = function(time){
-	navigator.notification.vibrate(time);
-	// alert(time);
-
-}
-
-
-var vibrar = function(tiempo){
-	// navigator.notification.vibrate(30);
-	var acumulador=0;
-	if(toType(tiempo) === "array"){ 
-		// alert("array");
-	
-		for (i=0;i<tiempo.length;i++){ 
-			// alert(tiempo[i]);
-			if (i % 2 == 0){
-				// alert("vibrar: "+tiempo[i]+" empezando en: "+acumulador);
-				// setTimeout('function() {alert("en fun: "+'+tiempo[i]+'); doit(tiempo[i]);}',	acumulador);
-				setTimeout('doit('+tiempo[i]+')',	acumulador);
-				acumulador = acumulador + tiempo[i];
-			
-			}
-			else{
-				 acumulador = acumulador + tiempo[i];
-			
-			}
-		} 
+				alert('path '+path);
+				alert('nombre '+name);
+		}
 		
-		// alert("wait");
-	
-	}
-	else if(toType(tiempo) === "number") {
-	
-		// alert("number");
-		navigator.notification.vibrate(tiempo);
-	
-	}
-	
+		
+		Libreria.device.capture.captureImage(captureSuccess, captureError, {limit: 1});
+	});
+};
+
+function get_contacts() {
+	require(["scripts/libreria.js"], function(Libreria) {
+		Libreria.contacts(function (obj){
+								var ultimo = obj.contacts.length;
+								alert("numero de contactos: " +ultimo);
+								
+								alert("Nombre ultimo: "+obj.contacts[ultimo-1].name.givenName);
+								alert("Numero ultimo: "+obj.contacts[ultimo-1].phoneNumbers[0]);
+						});
+		
+		
+	});
+
 
 }
-
-
-
-var get_contacts = function() {
-	vibrar([1000,1001,1002,1003,1004]);
 	
-
-	
-	
-
-}
- */
