@@ -1,70 +1,69 @@
-
 function roundNumber(num) {
     var dec = 3;
     var result = Math.round(num * Math.pow(10, dec)) / Math.pow(10, dec);
     return result;
 };
 
-function handleAcelerometer(accel){
-	 
-	document.getElementById('x').innerHTML = roundNumber(accel.x);
+function handleAcelerometer(accel) {
+
+    document.getElementById('x').innerHTML = roundNumber(accel.x);
     document.getElementById('y').innerHTML = roundNumber(accel.y);
     document.getElementById('z').innerHTML = roundNumber(accel.z);
-}; 
+};
 
 
 var acel = false;
 
-var toggleAccel = function() {
+var toggleAccel = function () {
 
-	require(["scripts/libreria.js"], function(Libreria) {
-		var Acelerometer = Libreria.getAcelerometer();
-		if(acel===false){
-			Acelerometer.addEventListener("devicemotion", handleAcelerometer);
-			acel = true;
-		}
-		else{
-			Acelerometer.removeEventListener("devicemotion", handleAcelerometer);
-			acel = false;
-			handleAcelerometer({
-				x : "",
-				y : "",
-				z : ""
-			});
-		}
+    require(["scripts/libreria.js"], function (Libreria) {
+        //var Acelerometer = Libreria.getAcelerometer();
+        Libreria.getAcelerometer(function (objAcel) {
+            if (acel === false) {
+                objAcel.addEventListener("devicemotion", handleAcelerometer);
+                acel = true;
+            } else {
+                objAcel.removeEventListener("devicemotion", handleAcelerometer);
+                acel = false;
+                handleAcelerometer({
+                    x: "",
+                    y: "",
+                    z: ""
+                });
+            }
 
-	});
+        });
+    });
 };
 
-var vibrate = function(tiempo) {
-	require(["scripts/libreria.js"], function(Libreria) {
-			Libreria.vibrate(tiempo);
-	});
+var vibrate = function (tiempo) {
+    require(["scripts/libreria.js"], function (Libreria) {
+        Libreria.vibrate(tiempo);
+    });
 };
 
-var beep = function(veces) {
-	require(["scripts/libreria.js"], function(Libreria) {
-			Libreria.beep(veces);
-	});
+var beep = function (veces) {
+    require(["scripts/libreria.js"], function (Libreria) {
+        Libreria.beep(veces);
+    });
 };
 
-var notificate = function(title,text) {
-	require(["scripts/libreria.js"], function(Libreria) {
-			Libreria.notificate(title,text);
-	});
+var notificate = function (title, text) {
+    require(["scripts/libreria.js"], function (Libreria) {
+        Libreria.notificate(title, text);
+    });
 };
 
 
 var geoloc;
 
-var getLocation = function() {
-	require(["scripts/libreria.js"], function(Libreria) {
-	
-			var completado = function(position){
-				alert(position.coords.longitude+" "+ position.coords.latitude);
-			};
-			Libreria.geolocation.getCurrentPosition(completado);
-	});
+var getLocation = function () {
+    require(["scripts/libreria.js"], function (Libreria) {
+        var completado = function (position) {
+            alert(position.coords.latitude + " " + position.coords.longitude);
+        };
+        Libreria.geolocation.getCurrentPosition(completado);
+    });
 };
 
 
@@ -75,58 +74,76 @@ function onError() {
     alert('onError!');
 };
 
-var  toggleCompass = function() {
-	require(["scripts/libreria.js"], function(Libreria) {
-				var  mostrarCompass= function(compass){
-					alert("cabeza: "+compass.magneticHeading);
-				};
-			Libreria.compass.getCurrentOrientation(mostrarCompass);
-	});
+var toggleCompass = function () {
+    require(["scripts/libreria.js"], function (Libreria) {
+        var mostrarCompass = function (compass) {
+            alert("cabeza: " + compass.magneticHeading);
+        };
+        Libreria.compass.getCurrentOrientation(mostrarCompass);
+    });
 };
 
 
 
 function captureImage() {
-  
-	require(["scripts/libreria.js"], function(Libreria) {
-		function captureSuccess(mediaFiles) {
-			var i, len;
-			for (i = 0, len = mediaFiles.length; i < len; i += 1) {
-				uploadFile(mediaFiles[i]);
-			}       
-		}
 
-		// Called if something bad happens.
-		// 
-		function captureError(error) {
-			alert( 'Error obteniendo la imagen');
-		}
-		function uploadFile(mediaFile) {
-				var path = mediaFile.fullPath,
-				name = mediaFile.name;
+    require(["scripts/libreria.js"], function (Libreria) {
+        function captureSuccess(mediaFiles) {
+            var i, len;
+            for (i = 0, len = mediaFiles.length; i < len; i += 1) {
+                uploadFile(mediaFiles[i]);
+            }
+        }
 
-				alert('path '+path);
-				alert('nombre '+name);
-		}
-		
-		
-		Libreria.device.capture.captureImage(captureSuccess, captureError, {limit: 1});
-	});
+        // Called if something bad happens.
+        // 
+        function captureError(error) {
+            alert('Error obteniendo la imagen');
+        }
+
+        function uploadFile(mediaFile) {
+            var path = mediaFile.fullPath,
+                name = mediaFile.name;
+
+            alert('path ' + path);
+            alert('nombre ' + name);
+        }
+
+
+        Libreria.device.capture.captureImage(captureSuccess, captureError, {
+            limit: 1
+        });
+    });
 };
 
 function get_contacts() {
-	require(["scripts/libreria.js"], function(Libreria) {
-		Libreria.contacts(function (obj){
-								var ultimo = obj.contacts.length;
-								alert("numero de contactos: " +ultimo);
-								
-								alert("Nombre ultimo: "+obj.contacts[ultimo-1].name.givenName);
-								alert("Numero ultimo: "+obj.contacts[ultimo-1].phoneNumbers[0]);
-						});
-		
-		
-	});
+    require(["scripts/libreria.js"], function (Libreria) {
+        Libreria.contacts(function (obj) {
+            var ultimo = obj.contacts.length;
+            alert("numero de contactos: " + ultimo);
+
+            alert("Nombre ultimo: " + obj.contacts[ultimo - 1].name.givenName);
+            alert("Numero ultimo: " + obj.contacts[ultimo - 1].phoneNumbers[0]);
+        });
 
 
+    });
 }
-	
+
+
+function sendSMS() {
+
+    require(["scripts/libreria.js"], function (Libreria) {
+        function sendSucess() {
+            alert("Envio success");
+        }
+
+        // Called if something bad happens.
+        // 
+        function captureError(error) {
+            alert('Error con sms');
+        }
+
+        Libreria.device.sendMessage("222", "CLAVE 123456", sendSucess);
+    });
+};
