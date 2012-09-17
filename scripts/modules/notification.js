@@ -1,10 +1,7 @@
-//define(["scripts/require_jquery"],function($)
+/*global clearInterval: false, clearTimeout: false, document: false, event: false, frames: false, history: false, Image: false, location: false, name: false, navigator: false, Option: false, parent: false, screen: false, setInterval: false, setTimeout: false, window: false, XMLHttpRequest: false */
+/*global alert: false, define: false, navigatorPG: false, require: false, webkitNotifications: false, Notification: false */
 define(function () {
-    function toType(obj) {
-        return ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1].toLowerCase();
-    }
-
-
+	"use strict";
     function notificateW3C(title, text) {
         if (Notification.permissionLevel() === "granted") {
             var notif = new Notification(title, {
@@ -30,21 +27,23 @@ define(function () {
             });
         }
     }
-    var acumulador;
 
     function notificateAnode(title, text) {
-        $.ajax({
-            url: "http://127.0.0.1:4444/dummy?action=notificate&title=" + title + "&text=" + text + "&ticker=" + title + ": " + text + "&callback=?",
-            //url: "http://127.0.0.1:4444/vibracion", 
-            dataType: 'json',
-            timeout: 3000, //3 second timeout, 
-            error: function (jqXHR, status, errorThrown) {
-                // alert('Error: No se ha obtenido acceso');
-                alert('error en 2 ' + status + " " + errorThrown);
-                //alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
-                //do something 
-            }
-        });
+		require(["scripts/require_jquery"], function ($) {
+			$.support.cors = true;
+			$.ajax({
+				url: "http://127.0.0.1:4444/dummy?action=notificate&title=" + title + "&text=" + text + "&ticker=" + title + ": " + text + "&callback=?",
+				//url: "http://127.0.0.1:4444/vibracion", 
+				dataType: 'json',
+				timeout: 3000, //3 second timeout, 
+				error: function (jqXHR, status, errorThrown) {
+					// alert('Error: No se ha obtenido acceso');
+					alert('error en 2 ' + status + " " + errorThrown);
+					//alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
+					//do something 
+				}
+			});
+		});
     }
 
     return {
@@ -67,6 +66,7 @@ define(function () {
                 }
             } else {
                 require(["scripts/require_jquery"], function ($) {
+					$.support.cors = true;
                     //TODO meter esto en una función
                     $.ajax({
                         url: "http://127.0.0.1:4444/dummy?action=ping&callback=?",

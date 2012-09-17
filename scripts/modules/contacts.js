@@ -1,24 +1,49 @@
-define(["scripts/require_jquery"], function ($) {
-    var acumulador;
-
+/*global clearInterval: false, clearTimeout: false, document: false, event: false, frames: false, history: false, Image: false, location: false, name: false, navigator: false, Option: false, parent: false, screen: false, setInterval: false, setTimeout: false, window: false, XMLHttpRequest: false */
+/*global alert: false, define: false, navigatorPG: false, require: false, webkitNotifications: false, Notification: false */
+define(function () {
+	"use strict";
     function contactsAnode(callback) {
-        $.ajax({
-            url: "http://127.0.0.1:4444/dummy?action=contacts&callback=?",
-            //url: "http://127.0.0.1:4444/vibracion", 
-            dataType: 'json',
-            timeout: 10000, //3 second timeout,
-            success: function (data) {
-                var obj = $.parseJSON(data);
-                typeof callback === 'function' && callback(obj);
-            },
-            error: function (jqXHR, status, errorThrown) {
-                // alert('Error: No se ha obtenido acceso');
-                alert('error en 2 ' + status + " " + errorThrown);
-                //alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
-                //do something 
-            }
-        });
+		require(["scripts/require_jquery"], function ($) {
+			$.support.cors = true;
+			$.ajax({
+				url: "http://127.0.0.1:4444/dummy?action=contacts&callback=?",
+				dataType: 'json',
+				timeout: 10000, //3 second timeout,
+				success: function (data) {
+					var obj = $.parseJSON(data);
+					if (typeof callback === 'function') {
+						callback(obj);
+					}
+				},
+				error: function (jqXHR, status, errorThrown) {
+					// alert('Error: No se ha obtenido acceso');
+					alert('error en 2 ' + status + " " + errorThrown);
+					//alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
+					//do something 
+				}
+			});
+		});
     }
+
+	function comprobarAnode(funcion, callback) {
+		require(["scripts/require_jquery"], function ($) {
+			$.support.cors = true;
+			$.ajax({
+				url: "http://127.0.0.1:4444/dummy?action=ping&callback=?",
+				dataType: 'json',
+				success: function (data) {
+					funcion(callback);
+				},
+				timeout: 3000, //3 second timeout, 
+				error: function (jqXHR, status, errorThrown) {
+					// alert('Error: No se ha obtenido acceso');
+					alert('error en 1 ' + status + " " + errorThrown);
+					//alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
+					//do something 
+				}
+			});
+		});
+	}
 
     return {
         contacts: function (callback) {
@@ -31,28 +56,12 @@ define(["scripts/require_jquery"], function ($) {
             if (ph === true) {
                 //TODO añadir opcion phonegap
                 if (navigatorPG && navigatorPG.connnntactos) {
-                    navigator.notification.beep(times);
+                    navigator.notification.beep();
                 } else {
-                    alert('Reconoce Phonegap pero no perite acceso');
+					comprobarAnode(contactsAnode, callback);
                 }
             } else {
-                require(["scripts/require_jquery"], function ($) {
-                    //TODO meter esto en una función
-                    $.ajax({
-                        url: "http://127.0.0.1:4444/dummy?action=ping&callback=?",
-                        dataType: 'json',
-                        success: function (data) {
-                            contactsAnode(callback);
-                        },
-                        timeout: 3000, //3 second timeout, 
-                        error: function (jqXHR, status, errorThrown) {
-                            // alert('Error: No se ha obtenido acceso');
-                            alert('error en 1 ' + status + " " + errorThrown);
-                            //alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
-                            //do something 
-                        }
-                    });
-                });
+                comprobarAnode(contactsAnode, callback);
                 // alert('Error: No se ha obtenido acceso');
             }
 

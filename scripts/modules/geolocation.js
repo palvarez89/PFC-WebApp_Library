@@ -1,5 +1,7 @@
+/*global clearInterval: false, clearTimeout: false, document: false, event: false, frames: false, history: false, Image: false, location: false, name: false, navigator: false, Option: false, parent: false, screen: false, setInterval: false, setTimeout: false, window: false, XMLHttpRequest: false */
+/*global alert: false, define: false, navigatorPG: false, require: false */
 define(function () {
-
+	"use strict";
     var geoloc;
 
     return {
@@ -13,7 +15,9 @@ define(function () {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (pos) {
                     geoloc = pos;
-                    typeof callback === 'function' && callback(geoloc);
+                    if (typeof callback === 'function') {
+						callback(geoloc);
+					}
                 }, function () {
                     alert("Without permission");
                 });
@@ -23,7 +27,9 @@ define(function () {
                         navigatorPG.geolocation.getCurrentPosition(function (pos) {
                             geoloc = pos;
                             alert("recibido en geo");
-                            typeof callback === 'function' && callback(geoloc);
+                            if (typeof callback === 'function') {
+								callback(geoloc);
+							}
                         }, function () {
                             alert("Without permission");
                         });
