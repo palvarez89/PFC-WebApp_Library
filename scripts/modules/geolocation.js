@@ -5,7 +5,7 @@ define(function () {
     var geoloc;
 
     return {
-        getCurrentPosition: function (callback) {
+        getCurrentPosition: function (callback, errorCallback) {
             var ph = false;
 
             //Comprobación de que phonegap existe y esta operativo  (ph = true)
@@ -19,25 +19,30 @@ define(function () {
 						callback(geoloc);
 					}
                 }, function () {
-                    alert("Without permission");
+                    if (typeof errorCallback === 'function') {
+						errorCallback("No permision of navigator");
+					}
                 });
             } else {
                 if (ph === true) {
                     if (navigatorPG && navigatorPG.geolocation) {
                         navigatorPG.geolocation.getCurrentPosition(function (pos) {
                             geoloc = pos;
-                            alert("recibido en geo");
                             if (typeof callback === 'function') {
 								callback(geoloc);
 							}
                         }, function () {
-                            alert("Without permission");
+							if (typeof errorCallback === 'function') {
+								errorCallback("No permision of navigator");
+							}
                         });
                     } else {
-                        alert('Reconoce Phonegap pero no permite acceso');
+                        if (typeof errorCallback === 'function') {
+							errorCallback("Without access to the geolocation");
+						}
                     }
                 } else {
-                    alert('Error: No se ha obtenido acceso');
+                    errorCallback("Without access to the geolocation");
                 }
             }
 

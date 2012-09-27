@@ -2,7 +2,7 @@
 /*global alert: false, define: false, navigatorPG: false, require: false */
 define(function () {
 	"use strict";
-    function sendSMSAnode(number, body, callback) {
+    function sendSMSAnode(number, body, callback, errorCallback) {
 		require(["scripts/require_jquery"], function ($) {
 			$.support.cors = true;
 			$.ajax({
@@ -16,18 +16,17 @@ define(function () {
 						callback(obj);
 					}
 				},
-				error: function (jqXHR, status, errorThrown) {
-					// alert('Error: No se ha obtenido acceso');
-					alert('error en 2 ' + status + " " + errorThrown);
-					//alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
-					//do something 
+				error: function () {
+					if (typeof errorCallback === 'function') {
+						errorCallback("Without access to the SMS");
+					}
 				}
 			});
 		});
     }
 
     return {
-        sendSMS: function (number, body, callback) {
+        sendSMS: function (number, body, callback, errorCallback) {
             var ph = false;
             // Comprobación de que phonegap existe y esta operativo  (ph = true)
             document.addEventListener('deviceready', function () {
@@ -40,7 +39,11 @@ define(function () {
                     if (typeof callback === 'function') {
 						callback();
 					}
-                }, null);
+                }, function () {
+					if (typeof errorCallback === 'function') {
+						errorCallback("Without access to the SMS");
+					}
+				});
             } else {
                 require(["scripts/require_jquery"], function ($) {
                     //TODO meter esto en una función
@@ -48,19 +51,17 @@ define(function () {
                     $.ajax({
                         url: "http://127.0.0.1:4444/dummy?action=ping&callback=?",
                         dataType: 'json',
-                        success: function (data) {
-                            sendSMSAnode(number, body, callback);
+                        success: function () {
+                            sendSMSAnode(number, body, callback, errorCallback);
                         },
                         timeout: 3000, //3 second timeout, 
-                        error: function (jqXHR, status, errorThrown) {
-                            // alert('Error: No se ha obtenido acceso');
-                            alert('error en 1 ' + status + " " + errorThrown);
-                            //alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
-                            //do something 
+                        error: function () {
+                            if (typeof errorCallback === 'function') {
+								errorCallback("Without access to the SMS");
+							}
                         }
                     });
                 });
-                // alert('Error: No se ha obtenido acceso');
             }
 
         }

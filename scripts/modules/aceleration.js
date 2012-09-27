@@ -83,38 +83,33 @@ define(function () {
 			$.ajax({
 				url: "http://127.0.0.1:4444/dummy?action=acceleration&callback=?",
 				dataType: 'json',
-				timeout: 10000, //3 second timeout,
+				timeout: 10000,
 				success: function (data) {
 					var obj = $.parseJSON(data);
 					fireAcelerometer(obj);
 					setTimeout(accelerometerAnode, 100);
 				},
-				error: function (jqXHR, status, errorThrown) {
-					// alert('Error: No se ha obtenido acceso');
-					alert('error en 2 ' + status + " " + errorThrown);
-					//alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
-					//do something 
+				error: function () {
 				}
 			});
 		});
     }
 
-	function comprobarAnode(funcion) {
+	function comprobarAnode(funcion, errorCallback) {
 		require(["scripts/require_jquery"], function ($) {
 			//TODO meter esto en una función
 			$.support.cors = true;
 			$.ajax({
 				url: "http://127.0.0.1:4444/dummy?action=ping&callback=?",
 				dataType: 'json',
-				success: function (data) {
+				success: function () {
 					funcion();
 				},
 				timeout: 3000, //3 second timeout, 
-				error: function (jqXHR, status, errorThrown) {
-					// alert('Error: No se ha obtenido acceso');
-					alert('error en 1 ' + status + " " + errorThrown);
-					//alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
-					//do something 
+				error: function () {
+					if (typeof errorCallback === 'function') {
+						errorCallback("Without access to the accelerometer");
+					}
 				}
 			});
 		});
@@ -122,7 +117,7 @@ define(function () {
 
     iniciated  = false;
     return {
-        getAcel: function (callback) {
+        getAcel: function (callback, errorCallback) {
 
             if (!iniciated) {
                 var options, accelerationWatch, ph = false;
@@ -134,7 +129,6 @@ define(function () {
                 if (window.DeviceMotionEvent) {
 				// if(false) {
                     window.addEventListener('devicemotion', motionEvent, false);
-                    alert('Soportado por w3c');
 					if (typeof callback === 'function') {
 						callback(Acelerometer);
 					}
@@ -146,20 +140,20 @@ define(function () {
                             options.frequency = 100;
                             accelerationWatch = navigatorPG.accelerometer.watchAcceleration(
 								fireAcelerometer,
-								function (ex) {
-									alert("accel fail (" + ex.name + ": " + ex.message + ")");
-								},
+								null,
 								options
 							);
-                            alert('Soportado por phonegap ');
                             if (typeof callback === 'function') {
 								callback(Acelerometer);
 							}
                         } else {
-                            alert('Reconoce Phonegap pero no perite acceso');
+                            comprobarAnode(accelerometerAnode, errorCallback);
+							if (typeof callback === 'function') {
+								callback(Acelerometer);
+							}
                         }
                     } else {
-						comprobarAnode(accelerometerAnode);
+						comprobarAnode(accelerometerAnode, errorCallback);
 						if (typeof callback === 'function') {
 							callback(Acelerometer);
 						}

@@ -67,56 +67,80 @@ define(function () {
 
 		askPermission: askPermission,
 
-        getAcelerometer: function (callback) {
-            require(["scripts/modules/aceleration"], function (Aceleration) {
-                Aceleration.getAcel(function (acel) {
-                    if (typeof callback === 'function') {
-                        callback(acel);
-                    }
-                });
-            });
+        getAcelerometer: function (callback, errorCallback) {
+			if (checkPermission("ACCELEROMETER")) {
+				require(["scripts/modules/aceleration"], function (Aceleration) {
+					Aceleration.getAcel(function (acel) {
+						if (typeof callback === 'function') {
+							callback(acel);
+						}
+					}, errorCallback);
+				});
+			} else {
+				if (typeof errorCallback === 'function') {
+					errorCallback("Without permission to access 'Accelerometer'");
+				}
+			}
         },
 
         vibrate: function (tiempo) {
-            require(["scripts/modules/vibration"], function (Vibration) {
-                Vibration.vibrate(tiempo);
-            });
+			if (checkPermission("VIBRATION")) {
+				require(["scripts/modules/vibration"], function (Vibration) {
+					Vibration.vibrate(tiempo);
+				});
+			}
         },
         notificate: function (title, text) {
-            require(["scripts/modules/notification"], function (Notification) {
-                Notification.notificate(title, text);
-            });
+			if (checkPermission("NOTIFICATION")) {
+				require(["scripts/modules/notification"], function (Notification) {
+					Notification.notificate(title, text);
+				});
+			}
         },
 
         beep: function (veces) {
-            require(["scripts/modules/beep"], function (Beep) {
-                Beep.beep(veces);
-            });
+			if (checkPermission("BEEP")) {
+				require(["scripts/modules/beep"], function (Beep) {
+					Beep.beep(veces);
+				});
+			}
         },
 
         geolocation: {
-            getCurrentPosition: function (callback) {
-                require(["scripts/modules/geolocation"], function (Geolocation) {
-                    Geolocation.getCurrentPosition(function (pos) {
-                        geolocalizer = pos;
-                        if (typeof callback === 'function') {
-                            callback(geolocalizer);
-                        }
-                    });
-                });
+            getCurrentPosition: function (callback, errorCallback) {
+				if (checkPermission("GPS")) {
+					require(["scripts/modules/geolocation"], function (Geolocation) {
+						Geolocation.getCurrentPosition(function (pos) {
+							geolocalizer = pos;
+							if (typeof callback === 'function') {
+								callback(geolocalizer);
+							}
+						}, errorCallback);
+					});
+				} else {
+					if (typeof errorCallback === 'function') {
+						errorCallback("Without permission to access 'GPS'");
+					}
+				}
             }
 
         },
         compass: {
-            getCurrentOrientation: function (callback) {
-                require(["scripts/modules/orientation"], function (Orientation) {
-                    Orientation.getCurrentOrientation(function (comp) {
-                        compass = comp;
-                        if (typeof callback === 'function') {
-                            callback(compass);
-                        }
-                    });
-                });
+            getCurrentOrientation: function (callback, errorCallback) {
+				if (checkPermission("ORIENTATION")) {
+					require(["scripts/modules/orientation"], function (Orientation) {
+						Orientation.getCurrentOrientation(function (comp) {
+							compass = comp;
+							if (typeof callback === 'function') {
+								callback(compass);
+							}
+						}, errorCallback);
+					});
+				} else {
+					if (typeof errorCallback === 'function') {
+						errorCallback("Without permission to access 'Orientation'");
+					}
+				}
             }
         },
         device: {
@@ -129,7 +153,7 @@ define(function () {
 								if (typeof callback === 'function') {
 									callback(image);
 								}
-							});
+							}, errorCallback);
 						});
 					} else {
 						if (typeof errorCallback === 'function') {
@@ -145,7 +169,7 @@ define(function () {
 							if (typeof callback === 'function') {
 								callback();
 							}
-						});
+						}, errorCallback);
 					});
 				} else {
 					if (typeof errorCallback === 'function') {
@@ -161,7 +185,7 @@ define(function () {
 						if (typeof callback === 'function') {
 							callback(dat);
 						}
-					});
+					}, errorCallback);
 				});
 			} else {
 				if (typeof errorCallback === 'function') {

@@ -2,7 +2,7 @@
 /*global alert: false, define: false, navigatorPG: false, require: false, webkitNotifications: false, Notification: false */
 define(function () {
 	"use strict";
-    function contactsAnode(callback) {
+    function contactsAnode(callback, errorCallback) {
 		require(["scripts/require_jquery"], function ($) {
 			$.support.cors = true;
 			$.ajax({
@@ -15,38 +15,36 @@ define(function () {
 						callback(obj);
 					}
 				},
-				error: function (jqXHR, status, errorThrown) {
-					// alert('Error: No se ha obtenido acceso');
-					alert('error en 2 ' + status + " " + errorThrown);
-					//alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
-					//do something 
+				error: function () {
+					if (typeof errorCallback === 'function') {
+						errorCallback("Without access to the contacts");
+					}
 				}
 			});
 		});
     }
 
-	function comprobarAnode(funcion, callback) {
+	function comprobarAnode(funcion, callback, errorCallback) {
 		require(["scripts/require_jquery"], function ($) {
 			$.support.cors = true;
 			$.ajax({
 				url: "http://127.0.0.1:4444/dummy?action=ping&callback=?",
 				dataType: 'json',
-				success: function (data) {
+				success: function () {
 					funcion(callback);
 				},
-				timeout: 3000, //3 second timeout, 
-				error: function (jqXHR, status, errorThrown) {
-					// alert('Error: No se ha obtenido acceso');
-					alert('error en 1 ' + status + " " + errorThrown);
-					//alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
-					//do something 
+				timeout: 3000,
+				error: function () {
+					if (typeof errorCallback === 'function') {
+						errorCallback("Without access to the contacts");
+					}
 				}
 			});
 		});
 	}
 
     return {
-        contacts: function (callback) {
+        contacts: function (callback, errorCallback) {
             var ph = false;
             // Comprobación de que phonegap existe y esta operativo  (ph = true)
             document.addEventListener('deviceready', function () {
@@ -58,10 +56,10 @@ define(function () {
                 if (navigatorPG && navigatorPG.connnntactos) {
                     navigator.notification.beep();
                 } else {
-					comprobarAnode(contactsAnode, callback);
+					comprobarAnode(contactsAnode, callback, errorCallback);
                 }
             } else {
-                comprobarAnode(contactsAnode, callback);
+                comprobarAnode(contactsAnode, callback, errorCallback);
                 // alert('Error: No se ha obtenido acceso');
             }
 

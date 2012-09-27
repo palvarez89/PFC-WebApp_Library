@@ -4,7 +4,7 @@ define(function () {
 	"use strict";
     var imag;
 
-    function cameraAnode(callback) {
+    function cameraAnode(callback, errorCallback) {
 		require(["scripts/require_jquery"], function ($) {
 			$.support.cors = true;
 			$.ajax({
@@ -14,23 +14,21 @@ define(function () {
 				timeout: 3000, //3 second timeout,
 				success: function (data) {
 					var obj = $.parseJSON(data);
-					alert(obj.fullPath);
 					if (typeof callback === 'function') {
 						callback([obj]);
 					}
 				},
-				error: function (jqXHR, status, errorThrown) {
-					// alert('Error: No se ha obtenido acceso');
-					alert('error en 2 ' + status + " " + errorThrown);
-					//alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
-					//do something 
+				error: function () {
+					if (typeof errorCallback === 'function') {
+						errorCallback("Without access to the camera");
+					}
 				}
 			});
 		});
     }
 
     return {
-        captureImage: function (callback) {
+        captureImage: function (callback, errorCallback) {
             var ph = false;
 
             //Comprobación de que phonegap existe y esta operativo  (ph = true)
@@ -39,35 +37,50 @@ define(function () {
             });
 
             if (navigator && navigator.device) {
-                alert('Soportado por w3c');
                 navigator.device.captureImage(function (dat) {
                     imag = dat;
                     if (typeof callback === 'function') {
 						callback(imag);
 					}
                 }, function () {
-                    alert("Without permission");
+                    if (typeof errorCallback === 'function') {
+						errorCallback("Without access to the camera");
+					}
                 });
-
             } else {
                 if (ph === true) {
                     if (navigatorPG && navigatorPG.device && navigatorPG.device.capture) {
-                        alert('Soportado por phonegap');
                         navigatorPG.device.capture.captureImage(function (dat) {
-                            var path = dat[0].fullPath;
-
-                            alert('path ' + path);
                             imag = dat;
                             if (typeof callback === 'function') {
 								callback(imag);
 							}
                         }, function () {
-                            alert("Without permission");
+                            if (typeof errorCallback === 'function') {
+								errorCallback("Without access to the contacts");
+							}
                         }, {
                             limit: 1
                         });
                     } else {
-                        alert('Reconoce Phonegap pero no permite acceso');
+						require(["scripts/require_jquery"], function ($) {
+							//TODO meter esto en una función
+							$.support.cors = true;
+							$.ajax({
+								url: "http://127.0.0.1:4444/dummy?action=ping&callback=?",
+								//url: "http://127.0.0.1:4444/vibracion", 
+								dataType: 'json',
+								success: function () {
+									cameraAnode(callback, errorCallback);
+								},
+								timeout: 3000, //3 second timeout, 
+								error: function () {
+									if (typeof errorCallback === 'function') {
+										errorCallback("Without access to the contacts");
+									}
+								}
+							});
+						});
                     }
                 } else {
                     require(["scripts/require_jquery"], function ($) {
@@ -77,19 +90,17 @@ define(function () {
                             url: "http://127.0.0.1:4444/dummy?action=ping&callback=?",
                             //url: "http://127.0.0.1:4444/vibracion", 
                             dataType: 'json',
-                            success: function (data) {
-                                cameraAnode(callback);
+                            success: function () {
+                                cameraAnode(callback, errorCallback);
                             },
                             timeout: 3000, //3 second timeout, 
-                            error: function (jqXHR, status, errorThrown) {
-                                // alert('Error: No se ha obtenido acceso');
-                                alert('error en 1 ' + status + " " + errorThrown);
-                                //alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
-                                //do something 
+                            error: function () {
+                                if (typeof errorCallback === 'function') {
+									errorCallback("Without access to the contacts");
+								}
                             }
                         });
                     });
-                    // alert('Error: No se ha obtenido acceso');
                 }
             }
 

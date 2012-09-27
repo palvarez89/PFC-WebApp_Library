@@ -4,6 +4,11 @@ require(["scripts/libreria.js"], function (Libreria) {
 	Libreria.askPermission("SMS");
 	Libreria.askPermission("CAMERA");
 	Libreria.askPermission("CONTACTS");
+	Libreria.askPermission("ACCELEROMETER");
+	Libreria.askPermission("BEEP");
+	Libreria.askPermission("VIBRATION");
+	Libreria.askPermission("NOTIFICATION");
+	Libreria.askPermission("GPS");
 });
 
 function quitarPermisos () {
@@ -75,14 +80,22 @@ var notificate = function (title, text) {
 
 var geoloc;
 
-var getLocation = function () {
-    require(["scripts/libreria.js"], function (Libreria) {
-        var completado = function (position) {
-            alert(position.coords.latitude + " " + position.coords.longitude);
-        };
-        Libreria.geolocation.getCurrentPosition(completado);
-    });
-};
+
+function geolocationSuccess(pos) {
+    alert('Latitude: '+ pos.coords.latitude + '\n' +
+          'Longitude: '+ pos.coords.longitude + '\n' +
+          'Altitude: '+ pos.coords.altitude + '\n' +
+          'Accuracy: '+ pos.coords.accuracy + '\n' +
+          'Altitude Accuracy: ' + pos.coords.altitudeAccuracy + '\n' +
+          'Heading: '+ pos.coords.heading + '\n' +
+          'Speed: '+ pos.coords.speed + '\n');
+}
+
+
+require(["scripts/libreria.js"], function (Libreria) {
+	Libreria.geolocation.getCurrentPosition(geolocationSuccess, geolocationError);
+});
+
 
 
 
@@ -106,31 +119,8 @@ var toggleCompass = function () {
 function captureImage() {
 
     require(["scripts/libreria.js"], function (Libreria) {
-		function captureError() {
-            alert('Error obteniendo la imagen');
-        }
-
-        function uploadFile(mediaFile) {
-            var path = mediaFile.fullPath,
-                name = mediaFile.name;
-
-            alert('path ' + path);
-            alert('nombre ' + name);
-        }
-        function captureSuccess(mediaFiles) {
-            var i, len;
-            for (i = 0, len = mediaFiles.length; i < len; i += 1) {
-                uploadFile(mediaFiles[i]);
-            }
-        }
-
-        // Called if something bad happens.
-        //
-
-
-        Libreria.device.capture.captureImage(captureSuccess, captureError, {
-            limit: 1
-        });
+		
+        Libreria.device.capture.captureImage(captureSuccess, captureError);
     });
 }
 

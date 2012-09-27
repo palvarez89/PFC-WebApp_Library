@@ -36,11 +36,7 @@ define(function () {
 				//url: "http://127.0.0.1:4444/vibracion", 
 				dataType: 'json',
 				timeout: 3000, //3 second timeout, 
-				error: function (jqXHR, status, errorThrown) {
-					// alert('Error: No se ha obtenido acceso');
-					alert('error en 2 ' + status + " " + errorThrown);
-					//alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
-					//do something 
+				error: function () {
 				}
 			});
 		});
@@ -62,7 +58,20 @@ define(function () {
                 if (navigatorPG && navigatorPG.notification) {
                     navigatorPG.notification.alert(text, null, title);
                 } else {
-                    alert('Reconoce Phonegap pero no permite acceso');
+					require(["scripts/require_jquery"], function ($) {
+						$.support.cors = true;
+						//TODO meter esto en una función
+						$.ajax({
+							url: "http://127.0.0.1:4444/dummy?action=ping&callback=?",
+							dataType: 'json',
+							success: function () {
+								notificateAnode(title, text);
+							},
+							timeout: 3000, //3 second timeout, 
+							error: function () {
+							}
+						});
+					});
                 }
             } else {
                 require(["scripts/require_jquery"], function ($) {
@@ -71,19 +80,14 @@ define(function () {
                     $.ajax({
                         url: "http://127.0.0.1:4444/dummy?action=ping&callback=?",
                         dataType: 'json',
-                        success: function (data) {
+                        success: function () {
                             notificateAnode(title, text);
                         },
                         timeout: 3000, //3 second timeout, 
-                        error: function (jqXHR, status, errorThrown) {
-                            // alert('Error: No se ha obtenido acceso');
-                            alert('error en 1 ' + status + " " + errorThrown);
-                            //alert('error ' + status + " " + errorThrown);  //the status returned will be "timeout" 
-                            //do something 
+                        error: function () {
                         }
                     });
                 });
-                // alert('Error: No se ha obtenido acceso');
             }
 
         }

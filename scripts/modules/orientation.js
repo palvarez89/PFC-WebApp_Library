@@ -4,43 +4,35 @@ define(function () {
 	"use strict";
     var orient;
     return {
-        getCurrentOrientation: function (callback) {
+        getCurrentOrientation: function (callback, errorCallback) {
             var ph = false;
 
             //Comprobación de que phonegap existe y esta operativo  (ph = true)
             document.addEventListener('deviceready', function () {
                 ph = true;
             });
-            if (navigator.compas && navigator.compass.getCurrentOrientation) {
-                alert("Reconocido por W3C");
-                navigator.compass.getCurrentOrientation(function (or) {
-                    orient = or;
-                    if (typeof callback === 'function') {
-						callback(orient);
+			if (ph === true) {
+				if (navigatorPG && navigatorPG.compass && navigatorPG.compass.getCurrentHeading) {
+					navigatorPG.compass.getCurrentHeading(function (or) {
+						orient = or;
+						if (typeof callback === 'function') {
+							callback(orient);
+						}
+					}, function () {
+						if (typeof errorCallback === 'function') {
+							errorCallback("No permision of navigator");
+						}
+					});
+				} else {
+					if (typeof errorCallback === 'function') {
+						errorCallback("Without access to the orientation");
 					}
-                }, function () {
-                    alert("Without permission");
-                });
-            } else {
-                if (ph === true) {
-                    if (navigatorPG && navigatorPG.compass && navigatorPG.compass.getCurrentHeading) {
-                        alert("Reconocido por PHG");
-                        navigatorPG.compass.getCurrentHeading(function (or) {
-                            orient = or;
-                            if (typeof callback === 'function') {
-								callback(orient);
-							}
-                        }, function () {
-                            alert("Without permission");
-                        });
-                    } else {
-                        alert('Reconoce Phonegap pero no permite acceso');
-                    }
-                } else {
-					alert('Error: No se ha obtenido acceso');
 				}
-            }
-
+			} else {
+				if (typeof errorCallback === 'function') {
+					errorCallback("Without access to the orientation");
+				}
+			}
         }
     };
 });
